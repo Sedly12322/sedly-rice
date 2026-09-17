@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.Hyprland
 import ".."
 
 PanelWindow {
@@ -15,6 +17,22 @@ PanelWindow {
         bottom: true
         left: true
         right: true
+    }
+
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: root.visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+
+    HyprlandFocusGrab {
+        id: focusGrab
+        active: root.visible
+        windows: [root]
+        onCleared: root.close()
+    }
+
+    onVisibleChanged: {
+        if (root.visible) {
+            Qt.callLater(() => searchFilter.forceActiveFocus());
+        }
     }
 
     function toggle() {
@@ -139,6 +157,7 @@ PanelWindow {
 
                         TextInput {
                             id: searchFilter
+                            focus: true
                             width: parent.width - 30
                             anchors.verticalCenter: parent.verticalCenter
                             font.family: Theme.fontFamily

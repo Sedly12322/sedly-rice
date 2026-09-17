@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.Hyprland
 import ".."
 
 PanelWindow {
@@ -15,6 +17,22 @@ PanelWindow {
         bottom: true
         left: true
         right: true
+    }
+
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: root.visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+
+    HyprlandFocusGrab {
+        id: focusGrab
+        active: root.visible
+        windows: [root]
+        onCleared: root.close()
+    }
+
+    onVisibleChanged: {
+        if (root.visible) {
+            Qt.callLater(() => searchField.forceActiveFocus());
+        }
     }
 
     property var allWallpapers: []
@@ -257,6 +275,7 @@ PanelWindow {
 
                         TextInput {
                             id: searchField
+                            focus: true
                             width: parent.width - 28
                             anchors.verticalCenter: parent.verticalCenter
                             font.family: Theme.fontFamily
@@ -275,6 +294,11 @@ PanelWindow {
                             }
 
                             Keys.onEscapePressed: root.close()
+                            Keys.onReturnPressed: {
+                                if (root.filteredWallpapers.length > 0) {
+                                    root.applyWallpaper(root.filteredWallpapers[0].path);
+                                }
+                            }
                         }
                     }
                 }

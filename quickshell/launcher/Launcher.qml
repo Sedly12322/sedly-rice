@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.Hyprland
 import ".."
 
 PanelWindow {
@@ -17,6 +19,22 @@ PanelWindow {
         right: true
     }
 
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: root.visible ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+
+    HyprlandFocusGrab {
+        id: focusGrab
+        active: root.visible
+        windows: [root]
+        onCleared: root.close()
+    }
+
+    onVisibleChanged: {
+        if (root.visible) {
+            Qt.callLater(() => searchField.forceActiveFocus());
+        }
+    }
+
     function toggle() {
         if (root.visible) {
             root.close();
@@ -28,7 +46,7 @@ PanelWindow {
     function open() {
         searchField.text = "";
         root.visible = true;
-        searchField.forceActiveFocus();
+        Qt.callLater(() => searchField.forceActiveFocus());
     }
 
     function close() {
@@ -64,6 +82,7 @@ PanelWindow {
         }
 
         Column {
+            id: col
             anchors.fill: parent
             anchors.margins: 16
             spacing: 14
@@ -93,6 +112,7 @@ PanelWindow {
 
                     TextInput {
                         id: searchField
+                        focus: true
                         width: parent.width - 40
                         anchors.verticalCenter: parent.verticalCenter
                         font.family: Theme.fontFamily
@@ -110,9 +130,22 @@ PanelWindow {
                         }
 
                         Keys.onEscapePressed: root.close()
+                        Keys.onDownPressed: {
+                            if (appList.currentIndex < col.filteredApps.length - 1) {
+                                appList.currentIndex++;
+                                appList.positionViewAtIndex(appList.currentIndex, ListView.Contain);
+                            }
+                        }
+                        Keys.onUpPressed: {
+                            if (appList.currentIndex > 0) {
+                                appList.currentIndex--;
+                                appList.positionViewAtIndex(appList.currentIndex, ListView.Contain);
+                            }
+                        }
                         Keys.onReturnPressed: {
-                            if (filteredApps.length > 0) {
-                                filteredApps[0].execute();
+                            if (col.filteredApps.length > 0) {
+                                const idx = (appList.currentIndex >= 0 && appList.currentIndex < col.filteredApps.length) ? appList.currentIndex : 0;
+                                col.filteredApps[idx].execute();
                                 root.close();
                             }
                         }
@@ -148,20 +181,26 @@ PanelWindow {
                 });
             }
 
+            onFilteredAppsChanged: appList.currentIndex = 0
+
             ListView {
                 id: appList
                 width: parent.width
                 height: parent.height - 60
                 clip: true
                 spacing: 6
-                model: parent.filteredApps
+                model: col.filteredApps
+                currentIndex: 0
 
                 delegate: Rectangle {
                     id: itemRow
                     width: appList.width
                     height: 48
                     radius: Theme.radiusMd
-                    color: itemHover.containsMouse ? Theme.surfaceContainerHighest : "transparent"
+                    readonly property bool isCurrent: ListView.isCurrentItem
+                    color: (isCurrent || itemHover.containsMouse) ? Theme.surfaceContainerHighest : "transparent"
+                    border.color: isCurrent ? Theme.primary : "transparent"
+                    border.width: isCurrent ? 1.5 : 0
 
                     Row {
                         anchors.fill: parent
