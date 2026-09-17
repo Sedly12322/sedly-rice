@@ -212,7 +212,7 @@ PanelWindow {
                             { keys: ["SUPER", "Enter"], desc: "Terminál Kitty" },
                             { keys: ["SUPER", "T"], desc: "Terminál Kitty (alt)" },
                             { keys: ["SUPER", "W"], desc: "Webový prohlížeč Firefox" },
-                            { keys: ["SUPER", "E"], desc: "Správce souborů Nautilus" },
+                            { keys: ["SUPER", "E"], desc: "Správce souborů Dolphin" },
                             { keys: ["SUPER", "C"], desc: "Editor kódu VS Code" },
                             { keys: ["SUPER"], desc: "Spouštěč aplikací (Launcher)" },
                             { keys: ["SUPER", "/"], desc: "Tento přehled zkratek" }

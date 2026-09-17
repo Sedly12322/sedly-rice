@@ -3,7 +3,7 @@
 ---------------------
 
 local terminal = "kitty"
-local fileManager = "nautilus"
+local fileManager = "dolphin"
 local browser = "firefox"
 local codeEditor = "code"
 
