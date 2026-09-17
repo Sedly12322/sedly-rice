@@ -34,13 +34,19 @@ hl.bind("SUPER + P", hl.dsp.window.pin(), { description = "Window: Pin" })
 hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true, description = "Window: Move" })
 hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Window: Resize" })
 
--- Focus in direction
+-- Focus window in direction
 local dirs = { "Left", "Right", "Up", "Down" }
 local d_short = { "l", "r", "u", "d" }
 for i = 1, 4 do
     hl.bind("SUPER + " .. dirs[i], hl.dsp.focus({ direction = d_short[i] }), { description = "Window: Focus " .. dirs[i] })
-    hl.bind("SUPER + SHIFT + " .. dirs[i], hl.dsp.window.move({ direction = d_short[i] }), { description = "Window: Move " .. dirs[i] })
+    hl.bind("SUPER + CTRL + " .. dirs[i], hl.dsp.window.move({ direction = d_short[i] }), { description = "Window: Move " .. dirs[i] })
 end
+
+-- Workspace switching with SUPER + SHIFT + Arrows
+hl.bind("SUPER + SHIFT + Left", hl.dsp.focus({ workspace = "m-1" }), { description = "Workspace: Previous" })
+hl.bind("SUPER + SHIFT + Right", hl.dsp.focus({ workspace = "m+1" }), { description = "Workspace: Next" })
+hl.bind("SUPER + SHIFT + Up", hl.dsp.focus({ workspace = "m+1" }), { description = "Workspace: Next" })
+hl.bind("SUPER + SHIFT + Down", hl.dsp.focus({ workspace = "m-1" }), { description = "Workspace: Previous" })
 
 --## Workspaces (1..10)
 for i = 1, 10 do

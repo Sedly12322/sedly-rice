@@ -228,7 +228,7 @@ PanelWindow {
                             { keys: ["SUPER", "Alt", "Space"], desc: "Plovoucí / dlaždicové okno" },
                             { keys: ["SUPER", "P"], desc: "Připnout okno (Pin)" },
                             { keys: ["SUPER", "Šipky"], desc: "Přepnout fokus oken" },
-                            { keys: ["SUPER", "Shift", "Šipky"], desc: "Přesunout okno ve směru" },
+                            { keys: ["SUPER", "Ctrl", "Šipky"], desc: "Přesunout okno ve směru" },
                             { keys: ["SUPER", "LMB tažení"], desc: "Přesunout okno myší" },
                             { keys: ["SUPER", "RMB tažení"], desc: "Změnit velikost okna myší" }
                         ]
@@ -239,6 +239,7 @@ PanelWindow {
                         items: [
                             { keys: ["SUPER", "1..8"], desc: "Přepnout na plochu 1 až 8" },
                             { keys: ["SUPER", "Shift", "1..8"], desc: "Přesunout okno na plochu 1..8" },
+                            { keys: ["SUPER", "Shift", "Šipky"], desc: "Předchozí / další plocha" },
                             { keys: ["SUPER", "Tab"], desc: "Následující plocha" },
                             { keys: ["SUPER", "Shift", "Tab"], desc: "Předchozí plocha" },
                             { keys: ["SUPER", "S"], desc: "Speciální plocha (Scratchpad)" },
