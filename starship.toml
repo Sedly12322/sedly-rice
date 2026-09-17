@@ -1,21 +1,21 @@
 # Sedly-Rice Starship Prompt (Dynamic Matugen)
 
 format = """
-[╭─](bold #84d2e6)$directory$git_branch$git_status$character
-[╰─](bold #84d2e6) """
+[╭─](bold #ddb9f8)$directory$git_branch$git_status$character
+[╰─](bold #ddb9f8) """
 
 right_format = """$cmd_duration$time"""
 
-continuation_prompt = '[▶▶ ](bold #84d2e6)'
+continuation_prompt = '[▶▶ ](bold #ddb9f8)'
 
 [directory]
-style = "bold #84d2e6"
+style = "bold #ddb9f8"
 format = "[$path ]($style)"
 truncation_length = 3
 truncation_symbol = "…/"
 
 [git_branch]
-style = "bold #bec5eb"
+style = "bold #f3b7bc"
 format = "on [$symbol$branch ]($style)"
 symbol = "󰊢 "
 
@@ -24,16 +24,16 @@ style = "bold #ffb4ab"
 format = "([$all_status$ahead_behind]($style) )"
 
 [character]
-success_symbol = "[❯](bold #84d2e6)"
+success_symbol = "[❯](bold #ddb9f8)"
 error_symbol = "[❯](bold #ffb4ab)"
 
 [time]
 disabled = false
-style = "bold #899295"
+style = "bold #968e98"
 format = "[$time]($style)"
 time_format = "%T"
 
 [cmd_duration]
-style = "bold #b2cbd2"
+style = "bold #d1c1d9"
 format = "took [$duration]($style) "
 min_time = 2_000
