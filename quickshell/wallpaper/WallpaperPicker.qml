@@ -24,6 +24,18 @@ PanelWindow {
     property bool isScanning: false
     property bool applying: false
 
+    readonly property var filteredWallpapers: {
+        const q = (root.searchText || "").trim().toLowerCase();
+        const cat = root.selectedCategory;
+        const list = root.allWallpapers || [];
+
+        return list.filter(w => {
+            const matchCat = (cat === "Všechny" || w.category === cat);
+            const matchSearch = (q === "" || (w.name && w.name.toLowerCase().indexOf(q) !== -1));
+            return matchCat && matchSearch;
+        });
+    }
+
     function toggle() {
         if (root.visible) {
             root.close();
@@ -34,10 +46,10 @@ PanelWindow {
 
     function open() {
         root.visible = true;
-        root.isScanning = true;
         searchField.text = "";
+        root.searchText = "";
         searchField.forceActiveFocus();
-        scanProc.running = true;
+        root.refreshWallpapers();
         currentWallFile.reload();
     }
 
@@ -45,16 +57,23 @@ PanelWindow {
         root.visible = false;
     }
 
+    function refreshWallpapers() {
+        root.isScanning = true;
+        scanProc.running = false;
+        scanProc.running = true;
+    }
+
     function applyWallpaper(path) {
         if (!path) return;
         root.applying = true;
         root.currentWallpaper = path;
         applyProc.command = ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/set-wallpaper.sh", path];
+        applyProc.running = false;
         applyProc.running = true;
     }
 
     function applyRandom() {
-        if (root.allWallpapers.length === 0) return;
+        if (!root.allWallpapers || root.allWallpapers.length === 0) return;
         const candidates = root.allWallpapers.filter(w => w.path !== root.currentWallpaper);
         const pool = candidates.length > 0 ? candidates : root.allWallpapers;
         const chosen = pool[Math.floor(Math.random() * pool.length)];
@@ -83,11 +102,16 @@ PanelWindow {
         ]
         stdout: StdioCollector {
             onStreamFinished: {
-                const lines = this.text.trim().split("\n");
+                const textData = this.text ? this.text.trim() : "";
+                if (!textData) {
+                    root.isScanning = false;
+                    return;
+                }
+                const lines = textData.split("\n");
                 const list = [];
                 for (let i = 0; i < lines.length; i++) {
                     const p = lines[i].trim();
-                    if (p.length === 0) continue;
+                    if (!p) continue;
                     const parts = p.split("/");
                     const filename = parts[parts.length - 1];
                     let cat = "Moje tapety";
@@ -151,15 +175,19 @@ PanelWindow {
             anchors.fill: parent
         }
 
-        Column {
-            anchors.fill: parent
-            anchors.margins: 20
-            spacing: 16
+        // Header Row
+        Item {
+            id: headerRow
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            height: 48
 
-            // Header Row
             Row {
-                width: parent.width
-                height: 48
+                anchors.fill: parent
                 spacing: 14
 
                 // Icon badge
@@ -194,7 +222,7 @@ PanelWindow {
                     }
 
                     Text {
-                        text: root.filteredWallpapers.length + " tapet nalezeno" + (root.applying ? " • Aplikuji tapetu..." : "")
+                        text: root.filteredWallpapers.length + " tapet k dispozici" + (root.applying ? " • Aplikuji tapetu..." : (root.isScanning ? " • Načítám..." : ""))
                         color: root.applying ? Theme.primary : Theme.outline
                         font.family: Theme.fontFamily
                         font.pixelSize: 12
@@ -234,6 +262,7 @@ PanelWindow {
                             font.pixelSize: 13
                             color: Theme.cOnSurface
                             selectByMouse: true
+                            onTextChanged: root.searchText = text
 
                             Text {
                                 text: "Hledat tapetu..."
@@ -344,10 +373,21 @@ PanelWindow {
                     }
                 }
             }
+        }
 
-            // Category Filter Chips
+        // Category Filter Chips
+        Item {
+            id: categoryRow
+            anchors.top: headerRow.bottom
+            anchors.topMargin: 12
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            height: 32
+
             Row {
-                width: parent.width
+                anchors.fill: parent
                 spacing: 8
 
                 readonly property var categories: ["Všechny", "Moje tapety", "Wallpaper Bank", "Sedly Rice"]
@@ -383,160 +423,156 @@ PanelWindow {
                     }
                 }
             }
+        }
 
-            // Filtered Wallpaper List
-            readonly property var filteredWallpapers: {
-                const q = searchField.text.trim().toLowerCase();
-                const cat = root.selectedCategory;
+        // Wallpaper Grid
+        Rectangle {
+            id: gridWrap
+            anchors.top: categoryRow.bottom
+            anchors.topMargin: 14
+            anchors.left: parent.left
+            anchors.leftMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 20
+            radius: Theme.radiusMd
+            color: Theme.surface
+            border.color: Theme.outlineVariant
+            border.width: 1
+            clip: true
 
-                return root.allWallpapers.filter(w => {
-                    const matchCat = (cat === "Všechny" || w.category === cat);
-                    const matchSearch = (q === "" || w.name.toLowerCase().indexOf(q) !== -1);
-                    return matchCat && matchSearch;
-                });
-            }
-
-            // Wallpaper Grid
-            Rectangle {
-                width: parent.width
-                height: card.height - 48 - 30 - 32 - 40
-                radius: Theme.radiusMd
-                color: Theme.surface
-                border.color: Theme.outlineVariant
-                border.width: 1
+            GridView {
+                id: grid
+                anchors.fill: parent
+                anchors.margins: 12
+                cellWidth: Math.floor(grid.width / 4)
+                cellHeight: 160
                 clip: true
+                model: root.filteredWallpapers
 
-                GridView {
-                    id: grid
-                    anchors.fill: parent
-                    anchors.margins: 12
-                    cellWidth: (grid.width - 24) / 4
-                    cellHeight: 160
-                    clip: true
-                    model: root.filteredWallpapers
+                ScrollBar.vertical: ScrollBar {
+                    active: true
+                    policy: ScrollBar.AsNeeded
+                }
 
-                    ScrollBar.vertical: ScrollBar {
-                        active: true
-                        policy: ScrollBar.AsNeeded
-                    }
+                delegate: Item {
+                    width: grid.cellWidth
+                    height: grid.cellHeight
 
-                    delegate: Item {
-                        width: grid.cellWidth
-                        height: grid.cellHeight
+                    readonly property bool isSelected: modelData.path === root.currentWallpaper
 
-                        readonly property bool isSelected: modelData.path === root.currentWallpaper
+                    Rectangle {
+                        id: tile
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        radius: Theme.radiusMd
+                        color: Theme.surfaceContainerHighest
+                        border.width: isSelected ? 2.5 : (tileArea.containsMouse ? 1.5 : 1)
+                        border.color: isSelected ? Theme.primary : (tileArea.containsMouse ? Theme.primaryContainer : Theme.outlineVariant)
+                        clip: true
 
-                        Rectangle {
-                            id: tile
-                            anchors.fill: parent
-                            anchors.margins: 6
-                            radius: Theme.radiusMd
-                            color: Theme.surfaceContainerHighest
-                            border.width: isSelected ? 2.5 : (tileArea.containsMouse ? 1.5 : 1)
-                            border.color: isSelected ? Theme.primary : (tileArea.containsMouse ? Theme.primaryContainer : Theme.outlineVariant)
-                            clip: true
+                        scale: tileArea.containsMouse ? 1.02 : 1.0
+                        Behavior on scale { NumberAnimation { duration: 120 } }
+                        Behavior on border.color { ColorAnimation { duration: 120 } }
 
-                            scale: tileArea.containsMouse ? 1.02 : 1.0
-                            Behavior on scale { NumberAnimation { duration: 120 } }
-                            Behavior on border.color { ColorAnimation { duration: 120 } }
+                        // Thumbnail Image
+                        Image {
+                            id: thumb
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            height: parent.height - 34
+                            fillMode: Image.PreserveAspectCrop
+                            source: "file://" + modelData.path
+                            asynchronous: true
+                            cache: true
+                            sourceSize.width: 300
+                            sourceSize.height: 170
 
-                            // Thumbnail Image
-                            Image {
-                                id: thumb
-                                anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: parent.height - 34
-                                fillMode: Image.PreserveAspectCrop
-                                source: "file://" + modelData.path
-                                asynchronous: true
-                                cache: true
-                                sourceSize.width: 300
-                                sourceSize.height: 170
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    color: Theme.surfaceContainerHigh
-                                    visible: thumb.status !== Image.Ready
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰋩"
-                                        color: Theme.outline
-                                        font.family: Theme.fontMono
-                                        font.pixelSize: 22
-                                    }
-                                }
-                            }
-
-                            // Active checkmark badge
                             Rectangle {
-                                visible: isSelected
-                                anchors.top: parent.top
-                                anchors.right: parent.right
-                                anchors.margins: 6
-                                width: 22
-                                height: 22
-                                radius: 11
-                                color: Theme.primary
-
+                                anchors.fill: parent
+                                color: Theme.surfaceContainerHigh
+                                visible: thumb.status !== Image.Ready
                                 Text {
                                     anchors.centerIn: parent
-                                    text: "✓"
-                                    color: Theme.cOnPrimary
-                                    font.pixelSize: 12
-                                    font.bold: true
-                                }
-                            }
-
-                            // Filename Bar
-                            Rectangle {
-                                anchors.bottom: parent.bottom
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                height: 34
-                                color: isSelected ? Theme.primaryContainer : Theme.surfaceContainerHigh
-
-                                Text {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 10
-                                    anchors.rightMargin: 10
-                                    verticalAlignment: Text.AlignVCenter
-                                    text: modelData.name
-                                    color: isSelected ? Theme.cOnPrimaryContainer : Theme.cOnSurface
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: 11
-                                    font.bold: isSelected
-                                    elide: Text.ElideMiddle
-                                }
-                            }
-
-                            MouseArea {
-                                id: tileArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    root.applyWallpaper(modelData.path);
+                                    text: "󰋩"
+                                    color: Theme.outline
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 22
                                 }
                             }
                         }
-                    }
 
-                    // Empty state message
-                    Text {
-                        anchors.centerIn: parent
-                        visible: root.filteredWallpapers.length === 0 && !root.isScanning
-                        text: "Žádné tapety neodpovídají filtru"
-                        color: Theme.outline
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 15
+                        // Active checkmark badge
+                        Rectangle {
+                            visible: isSelected
+                            anchors.top: parent.top
+                            anchors.right: parent.right
+                            anchors.margins: 6
+                            width: 22
+                            height: 22
+                            radius: 11
+                            color: Theme.primary
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "✓"
+                                color: Theme.cOnPrimary
+                                font.pixelSize: 12
+                                font.bold: true
+                            }
+                        }
+
+                        // Filename Bar
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            height: 34
+                            color: isSelected ? Theme.primaryContainer : Theme.surfaceContainerHigh
+
+                            Text {
+                                anchors.fill: parent
+                                anchors.leftMargin: 10
+                                anchors.rightMargin: 10
+                                verticalAlignment: Text.AlignVCenter
+                                text: modelData.name
+                                color: isSelected ? Theme.cOnPrimaryContainer : Theme.cOnSurface
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 11
+                                font.bold: isSelected
+                                elide: Text.ElideMiddle
+                            }
+                        }
+
+                        MouseArea {
+                            id: tileArea
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.applyWallpaper(modelData.path);
+                            }
+                        }
                     }
+                }
+
+                // Empty state message
+                Text {
+                    anchors.centerIn: parent
+                    visible: (!root.filteredWallpapers || root.filteredWallpapers.length === 0) && !root.isScanning
+                    text: "Žádné tapety neodpovídají filtru"
+                    color: Theme.outline
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 15
                 }
             }
         }
     }
 
     Component.onCompleted: {
+        root.refreshWallpapers();
         currentWallFile.reload();
     }
 }
