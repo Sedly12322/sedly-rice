@@ -37,17 +37,17 @@ fi
 # 5. Set initial wallpaper & generate dynamic colors
 WALL_SCRIPT="$HOME/.config/hypr/scripts/set-wallpaper.sh"
 if [ -x "$WALL_SCRIPT" ]; then
-    wall="$(find -L "$HOME/.config/wallpapers" -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.webp" \) -print -quit 2>/dev/null || true)"
-    if [ -n "$wall" ] && [ -f "$wall" ]; then
-        bash "$WALL_SCRIPT" "$wall" dark </dev/null >/dev/null 2>&1 || true
-    fi
+    bash "$WALL_SCRIPT" --restore </dev/null >/dev/null 2>&1 || true
 fi
 
 # 6. Start Quickshell for Sedly-Rice
 setsid qs </dev/null >/dev/null 2>&1 &
 
-# 7. Start polkit agent and cliphist
+# 7. Start polkit agent, cliphist, and hypridle
 systemctl --user start hyprpolkitagent 2>/dev/null || true
+if ! pgrep -x hypridle >/dev/null 2>&1; then
+    setsid hypridle </dev/null >/dev/null 2>&1 &
+fi
 if ! pgrep -f 'wl-paste --type text' >/dev/null 2>&1; then
     setsid wl-paste --type text --watch cliphist store </dev/null >/dev/null 2>&1 &
 fi
