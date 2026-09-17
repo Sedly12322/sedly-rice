@@ -234,6 +234,7 @@ PanelWindow {
                             { keys: ["SUPER", "E"], desc: "Správce souborů Dolphin" },
                             { keys: ["SUPER", "C"], desc: "Editor kódu VS Code" },
                             { keys: ["SUPER"], desc: "Spouštěč aplikací (Launcher)" },
+                            { keys: ["SUPER", "A"], desc: "Ovládací centrum (Quick Settings)" },
                             { keys: ["SUPER", "/"], desc: "Tento přehled zkratek" }
                         ]
                     },

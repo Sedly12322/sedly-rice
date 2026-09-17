@@ -160,6 +160,31 @@ Rectangle {
             }
         }
 
+        // Control Center button
+        Rectangle {
+            width: 26
+            height: 26
+            radius: 13
+            color: ccHover.containsMouse ? Theme.primaryContainer : "transparent"
+            anchors.verticalCenter: parent.verticalCenter
+
+            Text {
+                anchors.centerIn: parent
+                text: "󰕮"
+                color: ccHover.containsMouse ? Theme.cOnPrimaryContainer : Theme.primary
+                font.family: Theme.fontMono
+                font.pixelSize: 14
+            }
+
+            MouseArea {
+                id: ccHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: controlCenter.toggle()
+            }
+        }
+
         Rectangle {
             width: 1
             height: 14

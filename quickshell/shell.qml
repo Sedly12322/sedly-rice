@@ -6,6 +6,7 @@ import "launcher" as Launcher
 import "osd" as Osd
 import "cheatsheet" as Cheatsheet
 import "wallpaper" as Wallpaper
+import "controlcenter" as ControlCenter
 
 ShellRoot {
     id: root
@@ -28,6 +29,11 @@ ShellRoot {
     // Wallpaper Manager Overlay
     Wallpaper.WallpaperPicker {
         id: wallpaperPicker
+    }
+
+    // Control Center (Quick Settings) Panel
+    ControlCenter.ControlCenter {
+        id: controlCenter
     }
 
     // Volume & Brightness OSD
@@ -81,6 +87,22 @@ ShellRoot {
 
         function close(): void {
             wallpaperPicker.close();
+        }
+    }
+
+    IpcHandler {
+        target: "controlcenter"
+
+        function toggle(): void {
+            controlCenter.toggle();
+        }
+
+        function open(): void {
+            controlCenter.open();
+        }
+
+        function close(): void {
+            controlCenter.close();
         }
     }
 

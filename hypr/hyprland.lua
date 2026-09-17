@@ -2,6 +2,13 @@
 ---- SEDLY-RICE HYPRLAND.LUA ----
 -------------------------------
 
+-- Force reload of all modules on hyprctl reload
+for k in pairs(package.loaded) do
+    if k:match("^modules%.") then
+        package.loaded[k] = nil
+    end
+end
+
 require("modules.env")
 require("modules.monitors")
 require("modules.input")

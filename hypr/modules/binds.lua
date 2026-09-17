@@ -85,6 +85,8 @@ hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | wl-copy")
 hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { description = "Utilities: Screenshot full screen" })
 hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd("qs ipc call wallpaper toggle"), { description = "Shell: Wallpaper manager" })
 hl.bind("CTRL + SUPER + ALT + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/set-wallpaper.sh --random"), { description = "Shell: Random wallpaper" })
+hl.bind("SUPER + A", hl.dsp.exec_cmd("qs ipc call controlcenter toggle"), { description = "Shell: Ovládací centrum (Quick Settings)" })
+hl.bind("SUPER + S", hl.dsp.exec_cmd("qs ipc call controlcenter toggle"), { description = "Shell: Ovládací centrum (Quick Settings)" })
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall qs quickshell; qs &"), { description = "Shell: Restart Quickshell" })
 
 --## Media & Hardware
