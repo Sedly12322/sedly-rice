@@ -18,5 +18,7 @@ local colors = os.getenv("HOME") .. "/.config/hypr/colors.lua"
 local f = io.open(colors, "r")
 if f then
     f:close()
-    pcall(require, "colors")
+    package.loaded["colors"] = nil
+    pcall(dofile, colors)
 end
+

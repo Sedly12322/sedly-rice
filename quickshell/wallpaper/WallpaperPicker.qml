@@ -137,6 +137,7 @@ PanelWindow {
         onExited: (code, status) => {
             root.applying = false;
             currentWallFile.reload();
+            Theme.reload();
         }
     }
 
