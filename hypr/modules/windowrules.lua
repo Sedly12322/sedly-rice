@@ -10,6 +10,7 @@ hl.window_rule({ match = { title = "Open File" }, float = true })
 hl.window_rule({ match = { title = "Save File" }, float = true })
 hl.window_rule({ match = { class = "xdg-desktop-portal-gtk" }, float = true })
 hl.window_rule({ match = { class = "hyprpolkitagent" }, float = true })
+hl.window_rule({ match = { title = "^(Copying — Dolphin)$" }, move = { 40, 80 } })
 
 -- Opacity rules
 hl.window_rule({ match = { class = "kitty" }, opacity = 0.94 })
