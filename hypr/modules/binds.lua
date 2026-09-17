@@ -18,6 +18,11 @@ hl.bind("SUPER + C", hl.dsp.exec_cmd(codeEditor), { description = "App: Code edi
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd("qs ipc call launcher toggle"), { release = true, description = "Shell: App Launcher" })
 hl.bind("SUPER + SUPER_R", hl.dsp.exec_cmd("qs ipc call launcher toggle"), { release = true })
 
+-- Keybindings Cheatsheet overlay toggle
+hl.bind("SUPER + Slash", hl.dsp.exec_cmd("qs ipc call cheatsheet toggle"), { description = "Shell: Toggle keybinds overlay" })
+hl.bind("SUPER + question", hl.dsp.exec_cmd("qs ipc call cheatsheet toggle"))
+hl.bind("SUPER + F1", hl.dsp.exec_cmd("qs ipc call cheatsheet toggle"), { description = "Shell: Toggle keybinds overlay" })
+
 --## Window Management
 hl.bind("SUPER + Q", hl.dsp.window.close(), { description = "Window: Close" })
 hl.bind("SUPER + ALT + Space", hl.dsp.window.float({ action = "toggle" }), { description = "Window: Float/Tile" })

@@ -4,6 +4,7 @@ import Quickshell.Io
 import "bar" as Bar
 import "launcher" as Launcher
 import "osd" as Osd
+import "cheatsheet" as Cheatsheet
 
 ShellRoot {
     id: root
@@ -16,6 +17,11 @@ ShellRoot {
     // Material 3 App Launcher
     Launcher.Launcher {
         id: launcher
+    }
+
+    // Keybindings Cheatsheet Overlay
+    Cheatsheet.Cheatsheet {
+        id: cheatsheet
     }
 
     // Volume & Brightness OSD
@@ -37,6 +43,22 @@ ShellRoot {
 
         function close(): void {
             launcher.close();
+        }
+    }
+
+    IpcHandler {
+        target: "cheatsheet"
+
+        function toggle(): void {
+            cheatsheet.toggle();
+        }
+
+        function open(): void {
+            cheatsheet.open();
+        }
+
+        function close(): void {
+            cheatsheet.close();
         }
     }
 
