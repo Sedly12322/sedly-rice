@@ -83,7 +83,8 @@ hl.bind("SUPER + V", hl.dsp.exec_cmd("pkill fuzzel || cliphist list | fuzzel --d
 hl.bind("SUPER + Period", hl.dsp.exec_cmd("qs ipc call launcher toggleEmoji || fuzzel-emoji"), { description = "Utilities: Emoji picker" })
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | wl-copy"), { description = "Utilities: Screenshot region" })
 hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { description = "Utilities: Screenshot full screen" })
-hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/set-wallpaper.sh"), { description = "Shell: Set wallpaper" })
+hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/set-wallpaper.sh --pick"), { description = "Shell: Choose wallpaper" })
+hl.bind("CTRL + SUPER + ALT + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/set-wallpaper.sh --random"), { description = "Shell: Random wallpaper" })
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall qs quickshell; qs &"), { description = "Shell: Restart Quickshell" })
 
 --## Media & Hardware
@@ -100,5 +101,5 @@ hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true 
 hl.bind("SUPER + SHIFT + B", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
 
 -- Lock & Sleep
-hl.bind("SUPER + L", hl.dsp.exec_cmd("loginctl lock-session"), { description = "Session: Lock" })
-hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend || loginctl suspend"), { locked = true })
+hl.bind("SUPER + L", hl.dsp.exec_cmd("pidof hyprlock || hyprlock"), { description = "Session: Lock" })
+hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("loginctl lock-session && systemctl suspend"), { locked = true, description = "Session: Suspend" })

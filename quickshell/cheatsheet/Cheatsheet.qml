@@ -255,9 +255,11 @@ PanelWindow {
                             { keys: ["SUPER", "V"], desc: "Historie schránky (Cliphist)" },
                             { keys: ["SUPER", "Shift", "S"], desc: "Snímek výřezu obrazovky" },
                             { keys: ["Print"], desc: "Snímek celé obrazovky" },
-                            { keys: ["Ctrl", "SUPER", "T"], desc: "Změnit tapetu + Matugen barvy" },
+                            { keys: ["Ctrl", "SUPER", "T"], desc: "Vybrat tapetu ze složky" },
+                            { keys: ["Ctrl", "SUPER", "Alt", "T"], desc: "Náhodná nová tapeta" },
                             { keys: ["Ctrl", "SUPER", "R"], desc: "Restartovat Quickshell lištu" },
                             { keys: ["SUPER", "L"], desc: "Uzamknout obrazovku" },
+                            { keys: ["SUPER", "Shift", "L"], desc: "Uspat notebook (Suspend)" },
                             { keys: ["SUPER", "Shift", "P"], desc: "Přehrát / Pozastavit hudbu" },
                             { keys: ["SUPER", "Shift", "N"], desc: "Další skladba" },
                             { keys: ["SUPER", "Shift", "B"], desc: "Předchozí skladba" }
