@@ -240,6 +240,7 @@ PanelWindow {
                             { keys: ["SUPER", "1..8"], desc: "Přepnout na plochu 1 až 8" },
                             { keys: ["SUPER", "Shift", "1..8"], desc: "Přesunout okno na plochu 1..8" },
                             { keys: ["SUPER", "Ctrl", "Šipky"], desc: "Předchozí / další plocha" },
+                            { keys: ["SUPER", "Ctrl", "Shift", "Šipky"], desc: "Přesunout okno na předchozí / další plochu" },
                             { keys: ["SUPER", "Tab"], desc: "Následující plocha" },
                             { keys: ["SUPER", "Shift", "Tab"], desc: "Předchozí plocha" },
                             { keys: ["SUPER", "S"], desc: "Speciální plocha (Scratchpad)" },

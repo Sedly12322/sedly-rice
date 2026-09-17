@@ -52,6 +52,12 @@ hl.bind("CTRL + SUPER + Right", hl.dsp.focus({ workspace = "r+1" }))
 hl.bind("CTRL + SUPER + Down", hl.dsp.focus({ workspace = "r-1" }))
 hl.bind("CTRL + SUPER + Up", hl.dsp.focus({ workspace = "r+1" }))
 
+-- Move focused window between workspaces with SUPER + CTRL + SHIFT + Arrows
+hl.bind("SUPER + CTRL + SHIFT + Left", hl.dsp.window.move({ workspace = "r-1" }), { description = "Workspace: Move window to previous" })
+hl.bind("SUPER + CTRL + SHIFT + Right", hl.dsp.window.move({ workspace = "r+1" }), { description = "Workspace: Move window to next" })
+hl.bind("SUPER + CTRL + SHIFT + Down", hl.dsp.window.move({ workspace = "r-1" }), { description = "Workspace: Move window to previous" })
+hl.bind("SUPER + CTRL + SHIFT + Up", hl.dsp.window.move({ workspace = "r+1" }), { description = "Workspace: Move window to next" })
+
 --## Workspaces (1..10)
 for i = 1, 10 do
     local key = i % 10
