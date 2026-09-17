@@ -39,14 +39,18 @@ local dirs = { "Left", "Right", "Up", "Down" }
 local d_short = { "l", "r", "u", "d" }
 for i = 1, 4 do
     hl.bind("SUPER + " .. dirs[i], hl.dsp.focus({ direction = d_short[i] }), { description = "Window: Focus " .. dirs[i] })
-    hl.bind("SUPER + CTRL + " .. dirs[i], hl.dsp.window.move({ direction = d_short[i] }), { description = "Window: Move " .. dirs[i] })
+    hl.bind("SUPER + SHIFT + " .. dirs[i], hl.dsp.window.move({ direction = d_short[i] }), { description = "Window: Move " .. dirs[i] })
 end
 
--- Workspace switching with SUPER + SHIFT + Arrows
-hl.bind("SUPER + SHIFT + Left", hl.dsp.focus({ workspace = "m-1" }), { description = "Workspace: Previous" })
-hl.bind("SUPER + SHIFT + Right", hl.dsp.focus({ workspace = "m+1" }), { description = "Workspace: Next" })
-hl.bind("SUPER + SHIFT + Up", hl.dsp.focus({ workspace = "m+1" }), { description = "Workspace: Next" })
-hl.bind("SUPER + SHIFT + Down", hl.dsp.focus({ workspace = "m-1" }), { description = "Workspace: Previous" })
+-- Workspace switching with SUPER + CTRL + Arrows
+hl.bind("SUPER + CTRL + Left", hl.dsp.focus({ workspace = "r-1" }), { description = "Workspace: Previous" })
+hl.bind("SUPER + CTRL + Right", hl.dsp.focus({ workspace = "r+1" }), { description = "Workspace: Next" })
+hl.bind("SUPER + CTRL + Down", hl.dsp.focus({ workspace = "r-1" }), { description = "Workspace: Previous" })
+hl.bind("SUPER + CTRL + Up", hl.dsp.focus({ workspace = "r+1" }), { description = "Workspace: Next" })
+hl.bind("CTRL + SUPER + Left", hl.dsp.focus({ workspace = "r-1" }))
+hl.bind("CTRL + SUPER + Right", hl.dsp.focus({ workspace = "r+1" }))
+hl.bind("CTRL + SUPER + Down", hl.dsp.focus({ workspace = "r-1" }))
+hl.bind("CTRL + SUPER + Up", hl.dsp.focus({ workspace = "r+1" }))
 
 --## Workspaces (1..10)
 for i = 1, 10 do
@@ -63,8 +67,8 @@ for i = 1, 10 do
 end
 
 -- Workspace cycle & scratchpad
-hl.bind("SUPER + Tab", hl.dsp.focus({ workspace = "m+1" }), { description = "Workspace: Next" })
-hl.bind("SUPER + SHIFT + Tab", hl.dsp.focus({ workspace = "m-1" }), { description = "Workspace: Prev" })
+hl.bind("SUPER + Tab", hl.dsp.focus({ workspace = "r+1" }), { description = "Workspace: Next" })
+hl.bind("SUPER + SHIFT + Tab", hl.dsp.focus({ workspace = "r-1" }), { description = "Workspace: Prev" })
 hl.bind("SUPER + S", hl.dsp.workspace.toggle_special("special"), { description = "Workspace: Toggle scratchpad" })
 
 --## Utilities & Switcher
