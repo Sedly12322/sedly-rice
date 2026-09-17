@@ -5,6 +5,7 @@ import "bar" as Bar
 import "launcher" as Launcher
 import "osd" as Osd
 import "cheatsheet" as Cheatsheet
+import "wallpaper" as Wallpaper
 
 ShellRoot {
     id: root
@@ -22,6 +23,11 @@ ShellRoot {
     // Keybindings Cheatsheet Overlay
     Cheatsheet.Cheatsheet {
         id: cheatsheet
+    }
+
+    // Wallpaper Manager Overlay
+    Wallpaper.WallpaperPicker {
+        id: wallpaperPicker
     }
 
     // Volume & Brightness OSD
@@ -59,6 +65,22 @@ ShellRoot {
 
         function close(): void {
             cheatsheet.close();
+        }
+    }
+
+    IpcHandler {
+        target: "wallpaper"
+
+        function toggle(): void {
+            wallpaperPicker.toggle();
+        }
+
+        function open(): void {
+            wallpaperPicker.open();
+        }
+
+        function close(): void {
+            wallpaperPicker.close();
         }
     }
 

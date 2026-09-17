@@ -83,7 +83,7 @@ hl.bind("SUPER + V", hl.dsp.exec_cmd("pkill fuzzel || cliphist list | fuzzel --d
 hl.bind("SUPER + Period", hl.dsp.exec_cmd("qs ipc call launcher toggleEmoji || fuzzel-emoji"), { description = "Utilities: Emoji picker" })
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | wl-copy"), { description = "Utilities: Screenshot region" })
 hl.bind("Print", hl.dsp.exec_cmd("grim - | wl-copy"), { description = "Utilities: Screenshot full screen" })
-hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/set-wallpaper.sh --pick"), { description = "Shell: Choose wallpaper" })
+hl.bind("CTRL + SUPER + T", hl.dsp.exec_cmd("qs ipc call wallpaper toggle"), { description = "Shell: Wallpaper manager" })
 hl.bind("CTRL + SUPER + ALT + T", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/set-wallpaper.sh --random"), { description = "Shell: Random wallpaper" })
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall qs quickshell; qs &"), { description = "Shell: Restart Quickshell" })
 

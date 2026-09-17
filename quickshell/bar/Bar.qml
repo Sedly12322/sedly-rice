@@ -77,6 +77,33 @@ PanelWindow {
             }
         }
 
+        // Wallpaper manager trigger button
+        Rectangle {
+            width: Theme.barHeight
+            height: Theme.barHeight
+            radius: Theme.barRadius
+            color: wallHover.containsMouse ? Theme.primaryContainer : Theme.surfaceContainer
+            opacity: Theme.islandOpacity
+            border.color: Theme.outlineVariant
+            border.width: 1
+
+            Text {
+                anchors.centerIn: parent
+                text: "󰸉"
+                color: wallHover.containsMouse ? Theme.cOnPrimaryContainer : Theme.tertiary
+                font.family: Theme.fontMono
+                font.pixelSize: 16
+            }
+
+            MouseArea {
+                id: wallHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: wallpaperPicker.toggle()
+            }
+        }
+
         // Workspaces island
         Rectangle {
             height: Theme.barHeight

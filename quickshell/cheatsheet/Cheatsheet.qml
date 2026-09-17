@@ -255,7 +255,7 @@ PanelWindow {
                             { keys: ["SUPER", "V"], desc: "Historie schránky (Cliphist)" },
                             { keys: ["SUPER", "Shift", "S"], desc: "Snímek výřezu obrazovky" },
                             { keys: ["Print"], desc: "Snímek celé obrazovky" },
-                            { keys: ["Ctrl", "SUPER", "T"], desc: "Vybrat tapetu ze složky" },
+                            { keys: ["Ctrl", "SUPER", "T"], desc: "Správce tapet (galerie s náhledy)" },
                             { keys: ["Ctrl", "SUPER", "Alt", "T"], desc: "Náhodná nová tapeta" },
                             { keys: ["Ctrl", "SUPER", "R"], desc: "Restartovat Quickshell lištu" },
                             { keys: ["SUPER", "L"], desc: "Uzamknout obrazovku" },
