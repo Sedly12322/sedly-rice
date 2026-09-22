@@ -1,0 +1,13 @@
+# OS & Editor artifacts
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Backups
+*.bak
+*.backup
+*.orig
+sedly-rice-backup-*
