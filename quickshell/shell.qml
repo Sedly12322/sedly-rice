@@ -7,6 +7,7 @@ import "osd" as Osd
 import "cheatsheet" as Cheatsheet
 import "wallpaper" as Wallpaper
 import "controlcenter" as ControlCenter
+import "notifications" as Notifications
 
 ShellRoot {
     id: root
@@ -14,6 +15,16 @@ ShellRoot {
     // Top floating bar
     Bar.Bar {
         id: mainBar
+    }
+
+    // Interactive Calendar Popup
+    Bar.CalendarPopup {
+        id: calendarPopup
+    }
+
+    // Material 3 Toast Notifications
+    Notifications.NotificationToasts {
+        id: notificationToasts
     }
 
     // Material 3 App Launcher
@@ -103,6 +114,34 @@ ShellRoot {
 
         function close(): void {
             controlCenter.close();
+        }
+    }
+
+    IpcHandler {
+        target: "calendar"
+
+        function toggle(): void {
+            calendarPopup.toggle();
+        }
+
+        function open(): void {
+            calendarPopup.open();
+        }
+
+        function close(): void {
+            calendarPopup.close();
+        }
+    }
+
+    IpcHandler {
+        target: "osd"
+
+        function showVolume(val: int, muted: bool): void {
+            osd.showVolume(val, muted);
+        }
+
+        function showBrightness(val: int): void {
+            osd.showBrightness(val);
         }
     }
 

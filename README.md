@@ -23,12 +23,14 @@ Configured entirely in **Lua**, with an ultra-responsive UI driven by **Quickshe
   - Set any wallpaper and the entire desktop dynamically updates its color scheme in real time!
   - Harmonizes Hyprland borders, Kitty terminal, Starship prompt, Quickshell widgets, GTK themes, and Hyprlock.
 - ⚡ **Quickshell Interface Suite**:
-  - **Top Bar**: Minimalist pill-based bar with workspace indicator, live media player pill, clock, system stats (CPU, RAM, volume, battery).
-  - **Control Center (Quick Settings)**: Frosted glass panel with toggles for Wi-Fi, Bluetooth, Night light, plus smooth volume & brightness sliders (`SUPER + A` / `SUPER + S`).
+  - **Top Bar**: Minimalist pill-based bar with workspace indicator, live media player pill with album art and click-to-open, interactive clock with dropdown calendar, and system status stats (CPU, RAM, volume with mouse-wheel control, battery).
+  - **Calendar Popup**: Clean monthly calendar dropdown when clicking the top bar clock with today indicator and month navigation.
+  - **Control Center (Quick Settings)**: Frosted glass panel with expandable Wi-Fi network scanner, Bluetooth device picker, power profile selector (Power Saver / Balanced / Performance), media player with high-res album art, volume & brightness sliders (`SUPER + A` / `SUPER + S`).
+  - **Notification Toasts**: Native Material 3 notification server with animated popups, action buttons, progress bars, and Do Not Disturb (DND) integration.
+  - **Volume & Brightness OSD**: Real-time on-screen animated display responding to hardware keys and volume/brightness changes.
   - **App Launcher**: Instant floating launcher with fuzzy search and emoji picker integration (`SUPER` or `SUPER + Period`).
   - **Keybindings Cheatsheet**: Interactive on-screen hotkey overlay (`SUPER + /` or `F1`).
   - **Wallpaper Manager**: Live interactive grid picker to preview and switch wallpapers (`CTRL + SUPER + T`).
-  - **Volume & Brightness OSD**: Clean on-screen notifications for media and hardware keys.
 - 💻 **Terminal & Shell**:
   - **Kitty** terminal with JetBrains Mono Nerd Font and dynamic color propagation.
   - **Zsh** with **Starship** prompt, auto-suggestions, syntax highlighting, and fzf-tab completion.

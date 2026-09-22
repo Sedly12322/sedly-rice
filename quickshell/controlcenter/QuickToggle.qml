@@ -11,7 +11,11 @@ Rectangle {
     property color activeColor: Theme.primary
     property color cOnActiveColor: Theme.cOnPrimary
 
+    property bool expandable: false
+    property bool expanded: false
+
     signal clicked()
+    signal chevronClicked()
 
     height: 52
     radius: Theme.radiusMd
@@ -24,14 +28,14 @@ Rectangle {
     Behavior on color { ColorAnimation { duration: 140 } }
     Behavior on border.color { ColorAnimation { duration: 140 } }
 
-    scale: toggleMouse.pressed ? 0.97 : (toggleMouse.containsMouse ? 1.01 : 1.0)
+    scale: toggleMouse.pressed ? 0.98 : (toggleMouse.containsMouse ? 1.01 : 1.0)
     Behavior on scale { NumberAnimation { duration: 100 } }
 
     Row {
         anchors.fill: parent
         anchors.leftMargin: 10
-        anchors.rightMargin: 10
-        spacing: 10
+        anchors.rightMargin: root.expandable ? 4 : 10
+        spacing: 8
 
         // Icon badge
         Rectangle {
@@ -55,7 +59,7 @@ Rectangle {
         // Text labels
         Column {
             anchors.verticalCenter: parent.verticalCenter
-            width: parent.width - 32 - 10
+            width: parent.width - 32 - 8 - (root.expandable ? 26 : 0)
             spacing: 1
 
             Text {
@@ -79,11 +83,38 @@ Rectangle {
                 width: parent.width
             }
         }
+
+        // Chevron expand button
+        Rectangle {
+            visible: root.expandable
+            width: 24
+            height: 32
+            radius: Theme.radiusSm
+            color: chevMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.15) : "transparent"
+            anchors.verticalCenter: parent.verticalCenter
+
+            Text {
+                anchors.centerIn: parent
+                text: root.expanded ? "󰅀" : "󰅂"
+                color: root.active ? root.cOnActiveColor : Theme.outline
+                font.family: Theme.fontMono
+                font.pixelSize: 14
+            }
+
+            MouseArea {
+                id: chevMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.chevronClicked()
+            }
+        }
     }
 
     MouseArea {
         id: toggleMouse
         anchors.fill: parent
+        anchors.rightMargin: root.expandable ? 28 : 0
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: root.clicked()

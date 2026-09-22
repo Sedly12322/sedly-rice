@@ -90,11 +90,12 @@ hl.bind("SUPER + S", hl.dsp.exec_cmd("qs ipc call controlcenter toggle"), { desc
 hl.bind("CTRL + SUPER + R", hl.dsp.exec_cmd("killall qs quickshell; qs &"), { description = "Shell: Restart Quickshell" })
 
 --## Media & Hardware
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5"), { locked = true, repeating = true })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"), { locked = true, repeating = true })
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true })
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { locked = true, repeating = true })
+local osdScript = os.getenv("HOME") .. "/.config/hypr/scripts/osd.sh"
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd(osdScript .. " --vol-up"), { locked = true, repeating = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd(osdScript .. " --vol-down"), { locked = true, repeating = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd(osdScript .. " --vol-mute"), { locked = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd(osdScript .. " --bright-up"), { locked = true, repeating = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(osdScript .. " --bright-down"), { locked = true, repeating = true })
 hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("SUPER + SHIFT + P", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
 hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })

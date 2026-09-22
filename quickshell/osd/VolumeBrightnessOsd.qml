@@ -13,29 +13,52 @@ PanelWindow {
         bottom: true
     }
 
-    margins.bottom: 60
-    implicitHeight: 52
-    implicitWidth: 260
+    margins.bottom: 64
+    implicitHeight: 56
+    implicitWidth: 280
 
     property string iconText: "󰕾"
     property int level: 50
     property string title: "Hlasitost"
+    property color accentColor: Theme.primary
 
     Timer {
         id: hideTimer
-        interval: 1500
+        interval: 1800
         onTriggered: root.visible = false
     }
 
-    function showOsd(icon, val, name) {
+    function showOsd(icon, val, name, color) {
         root.iconText = icon;
         root.level = Math.max(0, Math.min(100, val));
         root.title = name;
+        root.accentColor = color || Theme.primary;
         root.visible = true;
         hideTimer.restart();
     }
 
+    function showVolume(val, muted) {
+        let icon = "󰕾";
+        if (muted) {
+            icon = "󰝟";
+            showOsd(icon, val, "Ztlumeno", Theme.error);
+        } else {
+            if (val >= 60) icon = "󰕾";
+            else if (val >= 25) icon = "󰖀";
+            else icon = "󰕿";
+            showOsd(icon, val, "Hlasitost", Theme.primary);
+        }
+    }
+
+    function showBrightness(val) {
+        let icon = "󰃠";
+        if (val < 30) icon = "󰃞";
+        else if (val < 60) icon = "󰃟";
+        showOsd(icon, val, "Jas obrazovky", Theme.tertiary);
+    }
+
     Rectangle {
+        id: pill
         anchors.fill: parent
         radius: Theme.radiusFull
         color: Theme.surfaceContainer
@@ -43,24 +66,27 @@ PanelWindow {
         border.width: 1
         opacity: Theme.islandOpacity
 
+        scale: root.visible ? 1.0 : 0.94
+        Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+
         Row {
             anchors.fill: parent
-            anchors.leftMargin: 16
-            anchors.rightMargin: 16
-            spacing: 12
+            anchors.leftMargin: 18
+            anchors.rightMargin: 18
+            spacing: 14
 
             Text {
                 text: root.iconText
-                color: Theme.primary
+                color: root.accentColor
                 font.family: Theme.fontMono
-                font.pixelSize: 18
+                font.pixelSize: 20
                 anchors.verticalCenter: parent.verticalCenter
             }
 
             Column {
                 anchors.verticalCenter: parent.verticalCenter
-                width: parent.width - 40
-                spacing: 4
+                width: parent.width - 44
+                spacing: 5
 
                 Item {
                     width: parent.width
@@ -71,8 +97,8 @@ PanelWindow {
                         text: root.title
                         color: Theme.cOnSurface
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
-                        font.weight: Font.Medium
+                        font.pixelSize: 12
+                        font.weight: Font.DemiBold
                     }
 
                     Text {
@@ -80,7 +106,8 @@ PanelWindow {
                         text: root.level + "%"
                         color: Theme.outline
                         font.family: Theme.fontFamily
-                        font.pixelSize: 11
+                        font.pixelSize: 12
+                        font.weight: Font.Medium
                     }
                 }
 
@@ -92,10 +119,13 @@ PanelWindow {
                     color: Theme.surfaceContainerHighest
 
                     Rectangle {
-                        width: parent.width * (root.level / 100)
+                        width: Math.max(6, parent.width * (root.level / 100))
                         height: parent.height
                         radius: 3
-                        color: Theme.primary
+                        color: root.accentColor
+
+                        Behavior on width { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                        Behavior on color { ColorAnimation { duration: 150 } }
                     }
                 }
             }

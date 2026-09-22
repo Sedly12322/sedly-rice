@@ -6,10 +6,13 @@ Rectangle {
     id: root
     height: Theme.barHeight
     radius: Theme.barRadius
-    color: Theme.surfaceContainer
+    color: clockHover.containsMouse ? Theme.surfaceContainerHigh : Theme.surfaceContainer
     opacity: Theme.islandOpacity
-    border.color: Theme.outlineVariant
+    border.color: clockHover.containsMouse ? Theme.primary : Theme.outlineVariant
     border.width: 1
+
+    Behavior on color { ColorAnimation { duration: 150 } }
+    Behavior on border.color { ColorAnimation { duration: 150 } }
 
     implicitWidth: clockRow.implicitWidth + 28
 
@@ -75,6 +78,18 @@ Rectangle {
             font.pixelSize: 12
             font.weight: Font.Medium
             anchors.verticalCenter: parent.verticalCenter
+        }
+    }
+
+    MouseArea {
+        id: clockHover
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            if (typeof calendarPopup !== "undefined" && calendarPopup) {
+                calendarPopup.toggle();
+            }
         }
     }
 }
