@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# set-wallpaper.sh [<path-to-image>|--pick|--random|--restore] [dark|light]
+# ==============================================================================
+#   set-wallpaper.sh [<path-to-image/video>|--pick|--random|--restore] [dark|light]
+#   Supports Static Images (PNG, JPG, AVIF), Animated (GIF, WebP), and Videos (MP4, WebM)
+# ==============================================================================
 set -euo pipefail
 
 MODE="dark"
@@ -48,13 +51,18 @@ done
 
 CACHE_DIR="$HOME/.cache/sedly-rice"
 CACHE_FILE="$CACHE_DIR/current_wallpaper"
+FRAME_FILE="$CACHE_DIR/current_frame.png"
 mkdir -p "$CACHE_DIR"
 
-# Find list of all available wallpapers
+# Find list of all available wallpapers (including GIF, WebP, MP4, WebM, MKV)
 get_all_wallpapers() {
     for d in "${WALLPAPER_DIRS[@]}"; do
         if [ -d "$d" ]; then
-            find -L "$d" -maxdepth 3 -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" -o -iname "*.avif" \) 2>/dev/null || true
+            find -L "$d" -maxdepth 3 -type f \( \
+                -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o \
+                -iname "*.webp" -o -iname "*.gif" -o -iname "*.avif" -o \
+                -iname "*.mp4" -o -iname "*.webm" -o -iname "*.mkv" \
+            \) 2>/dev/null || true
         fi
     done | awk '!seen[$0]++'
 }
@@ -78,11 +86,12 @@ elif [ "$ACTION" = "pick" ] || ( [ -z "$ACTION" ] && [ -z "$WALLPAPER" ] && [ -n
         START_DIR="$HOME/.config/wallpapers"
     fi
 
+    FILTER_STR="Všechny tapety (*.png *.jpg *.jpeg *.webp *.gif *.avif *.mp4 *.webm *.mkv)|*.png *.jpg *.jpeg *.webp *.gif *.avif *.mp4 *.webm *.mkv"
     SELECTED=""
     if command -v kdialog >/dev/null 2>&1; then
-        SELECTED="$(kdialog --title "Vybrat tapetu" --getopenfilename "$START_DIR" "*.png *.jpg *.jpeg *.webp *.avif|Obrázky (*.png *.jpg *.jpeg *.webp *.avif)" 2>/dev/null || true)"
+        SELECTED="$(kdialog --title "Vybrat tapetu" --getopenfilename "$START_DIR" "$FILTER_STR" 2>/dev/null || true)"
     elif command -v zenity >/dev/null 2>&1; then
-        SELECTED="$(zenity --file-selection --title="Vyberte tapetu" --filename="$START_DIR/" --file-filter="Obrázky | *.png *.jpg *.jpeg *.webp *.avif" 2>/dev/null || true)"
+        SELECTED="$(zenity --file-selection --title="Vyberte tapetu" --filename="$START_DIR/" --file-filter="Všechny tapety | *.png *.jpg *.jpeg *.webp *.gif *.avif *.mp4 *.webm *.mkv" 2>/dev/null || true)"
     fi
 
     if [ -z "$SELECTED" ] || [ ! -f "$SELECTED" ]; then
@@ -129,21 +138,66 @@ if [ -z "$WALLPAPER" ] || [ ! -f "$WALLPAPER" ]; then
     exit 1
 fi
 
-# Ensure awww-daemon is running and set wallpaper
-if command -v awww >/dev/null 2>&1; then
-    if ! pgrep -x awww-daemon >/dev/null 2>&1; then
-        setsid awww-daemon </dev/null >/dev/null 2>&1 &
-        sleep 0.3
+# Detect extension
+EXT="${WALLPAPER##*.}"
+EXT="$(echo "$EXT" | tr '[:upper:]' '[:lower:]')"
+IS_VIDEO=false
+if [[ "$EXT" =~ ^(mp4|webm|mkv|mov)$ ]]; then
+    IS_VIDEO=true
+fi
+
+MATUGEN_SOURCE="$WALLPAPER"
+
+# --- Apply Wallpaper ---
+if [ "$IS_VIDEO" = true ]; then
+    # Extract reference frame for palette & fallback
+    if command -v ffmpeg >/dev/null 2>&1; then
+        ffmpeg -y -ss 00:00:01 -i "$WALLPAPER" -vframes 1 -update 1 "$FRAME_FILE" >/dev/null 2>&1 || \
+        ffmpeg -y -i "$WALLPAPER" -vframes 1 -update 1 "$FRAME_FILE" >/dev/null 2>&1 || true
+        MATUGEN_SOURCE="$FRAME_FILE"
     fi
-    awww img "$WALLPAPER" --transition-type fade --transition-duration 1 --transition-fps 60 || true
+
+    if command -v mpvpaper >/dev/null 2>&1; then
+        killall -9 mpvpaper 2>/dev/null || true
+        # Pause awww to save GPU resources
+        if command -v awww >/dev/null 2>&1; then
+            awww clear 000000ff 2>/dev/null || true
+        fi
+        setsid mpvpaper -o "no-audio --loop" '*' "$WALLPAPER" </dev/null >/dev/null 2>&1 &
+        echo "Video wallpaper set via mpvpaper: $WALLPAPER"
+    else
+        # Fallback to static frame and notify user
+        killall -9 mpvpaper 2>/dev/null || true
+        if command -v awww >/dev/null 2>&1; then
+            if ! pgrep -x awww-daemon >/dev/null 2>&1; then
+                setsid awww-daemon </dev/null >/dev/null 2>&1 &
+                sleep 0.3
+            fi
+            awww img "$FRAME_FILE" --transition-type fade --transition-duration 1 || true
+        fi
+        if command -v notify-send >/dev/null 2>&1; then
+            (notify-send -a "Sedly Rice" -i "$FRAME_FILE" "Video tapeta detekována" "Pro živé přehrávání videa nainstalujte: yay -S mpvpaper mpv" 2>/dev/null || true) &
+        fi
+    fi
+else
+    # Static Image or Animated GIF / WebP
+    killall -9 mpvpaper 2>/dev/null || true
+    if command -v awww >/dev/null 2>&1; then
+        if ! pgrep -x awww-daemon >/dev/null 2>&1; then
+            setsid awww-daemon </dev/null >/dev/null 2>&1 &
+            sleep 0.3
+        fi
+        awww img "$WALLPAPER" --transition-type fade --transition-duration 1 --transition-fps 60 || true
+    fi
+    MATUGEN_SOURCE="$WALLPAPER"
 fi
 
 # Save to cache
 printf '%s\n' "$WALLPAPER" > "$CACHE_FILE"
 
 # Generate dynamic colors with matugen
-if command -v matugen >/dev/null 2>&1; then
-    matugen image "$WALLPAPER" -m "$MODE" --source-color-index 0 </dev/null >/dev/null 2>&1 || true
+if command -v matugen >/dev/null 2>&1 && [ -f "$MATUGEN_SOURCE" ]; then
+    matugen image "$MATUGEN_SOURCE" -m "$MODE" --source-color-index 0 </dev/null >/dev/null 2>&1 || true
 fi
 
 # Reload Hyprland colors
@@ -157,8 +211,9 @@ if command -v qs >/dev/null 2>&1; then
 fi
 
 # Send notification
+NOTIF_ICON="$MATUGEN_SOURCE"
 if command -v notify-send >/dev/null 2>&1; then
-    (timeout 1s notify-send -a "Sedly Rice" -i "$WALLPAPER" "Tapeta změněna" "$(basename "$WALLPAPER")" 2>/dev/null || true) &
+    (timeout 1s notify-send -a "Sedly Rice" -i "$NOTIF_ICON" "Tapeta změněna" "$(basename "$WALLPAPER")" 2>/dev/null || true) &
 fi
 
 echo "Wallpaper set: $WALLPAPER ($MODE)"

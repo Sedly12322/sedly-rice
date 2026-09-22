@@ -48,7 +48,7 @@ PanelWindow {
         const list = root.allWallpapers || [];
 
         return list.filter(w => {
-            const matchCat = (cat === "Všechny" || w.category === cat);
+            const matchCat = (cat === "Všechny" || (cat === "Animované" ? w.isAnimated : w.category === cat));
             const matchSearch = (q === "" || (w.name && w.name.toLowerCase().indexOf(q) !== -1));
             return matchCat && matchSearch;
         });
@@ -111,12 +111,33 @@ PanelWindow {
         onLoaded: root.currentWallpaper = this.text().trim()
     }
 
-    // Process to scan wallpapers
+    // Process to scan wallpapers & generate video thumbnails
     Process {
         id: scanProc
         command: [
             "bash", "-c",
-            "find -L \"$HOME/.config/wallpapers\" \"$HOME/Obrázky/Wallpapers\" \"$HOME/Pictures/wallpapers\" -maxdepth 4 -type f \\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.avif' \\) 2>/dev/null | awk '!seen[$0]++'"
+            "mkdir -p \"$HOME/.cache/sedly-rice/thumbs\"; " +
+            "find -L \"$HOME/.config/wallpapers\" \"$HOME/Obrázky/Wallpapers\" \"$HOME/Pictures/wallpapers\" -maxdepth 4 -type f \\( " +
+            "  -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' -o -iname '*.gif' -o -iname '*.avif' -o -iname '*.mp4' -o -iname '*.webm' -o -iname '*.mkv' " +
+            "\\) 2>/dev/null | awk '!seen[$0]++' | while read -r f; do " +
+            "  ext=\"${f##*.}\"; ext=\"$(echo \"$ext\" | tr '[:upper:]' '[:lower:]')\"; " +
+            "  case \"$ext\" in " +
+            "    mp4|webm|mkv|mov) " +
+            "      hash=$(echo -n \"$f\" | md5sum | cut -d' ' -f1); " +
+            "      thumb=\"$HOME/.cache/sedly-rice/thumbs/$hash.jpg\"; " +
+            "      if [ ! -f \"$thumb\" ]; then " +
+            "        ffmpeg -y -ss 00:00:01 -i \"$f\" -vframes 1 -update 1 -vf \"scale=400:-1\" \"$thumb\" >/dev/null 2>&1 || true; " +
+            "      fi; " +
+            "      echo \"$f|$thumb|video\"; " +
+            "      ;; " +
+            "    gif) " +
+            "      echo \"$f|$f|gif\"; " +
+            "      ;; " +
+            "    *) " +
+            "      echo \"$f|$f|image\"; " +
+            "      ;; " +
+            "  esac; " +
+            "done"
         ]
         stdout: StdioCollector {
             onStreamFinished: {
@@ -128,18 +149,27 @@ PanelWindow {
                 const lines = textData.split("\n");
                 const list = [];
                 for (let i = 0; i < lines.length; i++) {
-                    const p = lines[i].trim();
-                    if (!p) continue;
-                    const parts = p.split("/");
-                    const filename = parts[parts.length - 1];
+                    const l = lines[i].trim();
+                    if (!l) continue;
+                    const parts = l.split("|");
+                    const p = parts[0];
+                    const thumb = parts[1] || p;
+                    const type = parts[2] || "image";
+                    const filename = p.split("/").pop();
+
                     let cat = "Moje tapety";
                     if (p.indexOf("Wallpaper-Bank") !== -1) cat = "Wallpaper Bank";
                     else if (p.indexOf(".config/wallpapers") !== -1) cat = "Sedly Rice";
 
+                    const isAnim = (type === "video" || type === "gif" || p.toLowerCase().endsWith(".webp"));
+
                     list.push({
                         path: p,
+                        thumb: thumb,
+                        type: type,
                         name: filename,
-                        category: cat
+                        category: cat,
+                        isAnimated: isAnim
                     });
                 }
                 root.allWallpapers = list;
@@ -241,7 +271,7 @@ PanelWindow {
                     }
 
                     Text {
-                        text: root.filteredWallpapers.length + " tapet k dispozici" + (root.applying ? " • Aplikuji tapetu..." : (root.isScanning ? " • Načítám..." : ""))
+                        text: root.filteredWallpapers.length + " tapet k dispozici" + (root.applying ? " • Aplikuji tapetu..." : (root.isScanning ? " • Načítám animace a videa..." : ""))
                         color: root.applying ? Theme.primary : Theme.outline
                         font.family: Theme.fontFamily
                         font.pixelSize: 12
@@ -415,7 +445,7 @@ PanelWindow {
                 anchors.fill: parent
                 spacing: 8
 
-                readonly property var categories: ["Všechny", "Moje tapety", "Wallpaper Bank", "Sedly Rice"]
+                readonly property var categories: ["Všechny", "Animované", "Moje tapety", "Wallpaper Bank", "Sedly Rice"]
 
                 Repeater {
                     model: parent.categories
@@ -501,7 +531,7 @@ PanelWindow {
                         Behavior on scale { NumberAnimation { duration: 120 } }
                         Behavior on border.color { ColorAnimation { duration: 120 } }
 
-                        // Thumbnail Image
+                        // Static or Animated Thumbnail Image
                         Image {
                             id: thumb
                             anchors.top: parent.top
@@ -509,11 +539,11 @@ PanelWindow {
                             anchors.right: parent.right
                             height: parent.height - 34
                             fillMode: Image.PreserveAspectCrop
-                            source: "file://" + modelData.path
+                            source: "file://" + (modelData.thumb || modelData.path)
                             asynchronous: true
                             cache: true
-                            sourceSize.width: 300
-                            sourceSize.height: 170
+                            sourceSize.width: 320
+                            sourceSize.height: 180
 
                             Rectangle {
                                 anchors.fill: parent
@@ -525,6 +555,86 @@ PanelWindow {
                                     color: Theme.outline
                                     font.family: Theme.fontMono
                                     font.pixelSize: 22
+                                }
+                            }
+                        }
+
+                        // Live animated preview for GIFs on hover
+                        AnimatedImage {
+                            anchors.fill: thumb
+                            source: (modelData.type === "gif" && tileArea.containsMouse) ? ("file://" + modelData.path) : ""
+                            fillMode: Image.PreserveAspectCrop
+                            asynchronous: true
+                            playing: tileArea.containsMouse
+                            visible: modelData.type === "gif" && tileArea.containsMouse && status === Image.Ready
+                        }
+
+                        // Video Badge
+                        Rectangle {
+                            visible: modelData.type === "video"
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            anchors.margins: 6
+                            height: 20
+                            implicitWidth: vidBadgeRow.implicitWidth + 10
+                            radius: 10
+                            color: "#d9000000"
+                            border.color: Theme.primary
+                            border.width: 1
+
+                            Row {
+                                id: vidBadgeRow
+                                anchors.centerIn: parent
+                                spacing: 4
+                                Text {
+                                    text: "󰕧"
+                                    color: Theme.primary
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 11
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                                Text {
+                                    text: "VIDEO"
+                                    color: "#ffffff"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 9
+                                    font.bold: true
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+                        }
+
+                        // GIF Badge
+                        Rectangle {
+                            visible: modelData.type === "gif"
+                            anchors.top: parent.top
+                            anchors.left: parent.left
+                            anchors.margins: 6
+                            height: 20
+                            implicitWidth: gifBadgeRow.implicitWidth + 10
+                            radius: 10
+                            color: "#d9000000"
+                            border.color: Theme.secondary
+                            border.width: 1
+
+                            Row {
+                                id: gifBadgeRow
+                                anchors.centerIn: parent
+                                spacing: 4
+                                Text {
+                                    text: "󰵸"
+                                    color: Theme.secondary
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 11
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                                Text {
+                                    text: "GIF"
+                                    color: "#ffffff"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 9
+                                    font.bold: true
+                                    anchors.verticalCenter: parent.verticalCenter
                                 }
                             }
                         }

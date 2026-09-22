@@ -44,11 +44,11 @@ check_dependencies() {
         "hyprland" "hypridle" "hyprlock" "kitty" "zsh" "starship"
         "fastfetch" "dolphin" "fuzzel" "cliphist" "wl-clipboard"
         "grim" "slurp" "brightnessctl" "wireplumber" "playerctl"
-        "ttf-jetbrains-mono-nerd" "lsd" "bat" "fzf"
+        "ttf-jetbrains-mono-nerd" "lsd" "bat" "fzf" "ffmpeg" "mpv" "cava"
     )
 
     local AUR_PKGS=(
-        "quickshell" "matugen-bin" "awww" "hyprpolkitagent"
+        "quickshell" "matugen-bin" "awww" "hyprpolkitagent" "mpvpaper"
     )
 
     for pkg in "${PACMAN_PKGS[@]}"; do

@@ -30,7 +30,11 @@ Configured entirely in **Lua**, with an ultra-responsive UI driven by **Quickshe
   - **Volume & Brightness OSD**: Real-time on-screen animated display responding to hardware keys and volume/brightness changes.
   - **App Launcher**: Instant floating launcher with fuzzy search and emoji picker integration (`SUPER` or `SUPER + Period`).
   - **Keybindings Cheatsheet**: Interactive on-screen hotkey overlay (`SUPER + /` or `F1`).
-  - **Wallpaper Manager**: Live interactive grid picker to preview and switch wallpapers (`CTRL + SUPER + T`).
+  - **Wallpaper Manager**: Live interactive grid picker with instant search, category filtering, animated GIF previews on hover, and live MP4/WebM video wallpaper playback via `mpvpaper` (`CTRL + SUPER + T`).
+- 🎬 **Animated & Video Wallpapers**:
+  - Full support for animated `.gif` and `.webp` out of the box via `awww`.
+  - Video wallpaper support (`.mp4`, `.webm`, `.mkv`) seamlessly powered by `mpvpaper`.
+  - Dynamic thumbnail generation and instant palette extraction via `ffmpeg` + `matugen`.
 - 💻 **Terminal & Shell**:
   - **Kitty** terminal with JetBrains Mono Nerd Font and dynamic color propagation.
   - **Zsh** with **Starship** prompt, auto-suggestions, syntax highlighting, and fzf-tab completion.
