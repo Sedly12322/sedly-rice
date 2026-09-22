@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Mpris
 import ".."
 
@@ -24,6 +25,40 @@ Rectangle {
     readonly property bool isPlaying: root.activePlayer ? root.activePlayer.playbackState === MprisPlaybackState.Playing : false
 
     implicitWidth: contentRow.implicitWidth + 24
+
+    // Cava audio visualizer process
+    property var cavaBars: [0, 0, 0, 0]
+    readonly property string cavaConfPath: Quickshell.env("HOME") + "/.config/quickshell/bar/cava.conf"
+
+    Process {
+        id: cavaProc
+        running: root.isPlaying
+        command: ["cava", "-p", root.cavaConfPath]
+        stdout: SplitParser {
+            onRead: (data) => {
+                const points = data.split(";").map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
+                if (points.length >= 4) {
+                    root.cavaBars = points;
+                }
+            }
+        }
+    }
+
+    // Dynamic rhythmic pulse fallback
+    property var animHeights: [6, 12, 8, 14]
+    Timer {
+        interval: 140
+        repeat: true
+        running: root.isPlaying
+        onTriggered: {
+            root.animHeights = [
+                Math.floor(Math.random() * 11) + 4,
+                Math.floor(Math.random() * 13) + 4,
+                Math.floor(Math.random() * 11) + 4,
+                Math.floor(Math.random() * 10) + 4
+            ];
+        }
+    }
 
     Row {
         id: contentRow
@@ -74,7 +109,7 @@ Rectangle {
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 anchors.verticalCenter: parent.verticalCenter
-                width: Math.min(implicitWidth, 200)
+                width: Math.min(implicitWidth, 190)
             }
 
             MouseArea {
@@ -85,6 +120,41 @@ Rectangle {
                 onClicked: {
                     if (typeof controlCenter !== "undefined" && controlCenter) {
                         controlCenter.toggle();
+                    }
+                }
+            }
+        }
+
+        // Audio Visualizer Equalizer Bars
+        Item {
+            width: 18
+            height: 16
+            anchors.verticalCenter: parent.verticalCenter
+
+            Row {
+                anchors.centerIn: parent
+                spacing: 2
+
+                Repeater {
+                    model: 4
+
+                    Rectangle {
+                        width: 3
+                        radius: 1.5
+                        anchors.bottom: parent.bottom
+                        color: Theme.primary
+
+                        height: {
+                            if (!root.isPlaying) return 3;
+                            const cVal = (root.cavaBars && root.cavaBars.length > index) ? root.cavaBars[index] : 0;
+                            if (cVal > 4) {
+                                return Math.max(3, Math.min(16, Math.round((cVal / 100) * 16)));
+                            }
+                            return root.animHeights[index];
+                        }
+
+                        Behavior on height { NumberAnimation { duration: 90; easing.type: Easing.OutQuad } }
+                        Behavior on color { ColorAnimation { duration: 150 } }
                     }
                 }
             }

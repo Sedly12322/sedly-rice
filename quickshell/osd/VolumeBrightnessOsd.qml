@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import ".."
 
 PanelWindow {
@@ -8,6 +9,9 @@ PanelWindow {
 
     visible: false
     color: "transparent"
+
+    WlrLayershell.layer: WlrLayer.Overlay
+    exclusiveZone: 0
 
     anchors {
         bottom: true
